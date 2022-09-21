@@ -116,7 +116,7 @@ class JitOptions {
   }
 
   bool UseJitCompilation() const {
-    return use_jit_compilation_;
+    return false;//use_jit_compilation_;
   }
 
   bool UseProfiledJitCompilation() const {
