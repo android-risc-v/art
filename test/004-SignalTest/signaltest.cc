@@ -84,6 +84,10 @@ static void signalhandler(int sig ATTRIBUTE_UNUSED, siginfo_t* info ATTRIBUTE_UN
   struct ucontext *uc = reinterpret_cast<struct ucontext*>(context);
   struct sigcontext *sc = reinterpret_cast<struct sigcontext*>(&uc->uc_mcontext);
   sc->pc += 4;          // Skip instruction causing segv.
+#elif defined(__riscv)
+  struct ucontext_t *uc = reinterpret_cast<struct ucontext_t*>(context);
+  struct mcontext_t *sc = reinterpret_cast<struct mcontext_t*>(&uc->uc_mcontext);
+  sc->__gregs[REG_PC] += 4;  // Skip instruction causing segv.
 #elif defined(__i386__)
   struct ucontext *uc = reinterpret_cast<struct ucontext*>(context);
   uc->CTX_EIP += 3;
@@ -154,9 +158,13 @@ extern "C" JNIEXPORT jint JNICALL Java_Main_testSignal(JNIEnv*, jclass) {
   sigaddset(&mask, UNBLOCKED_SIGNAL);
   sigprocmask(SIG_UNBLOCK, &mask, nullptr);
 
-#if defined(__arm__) || defined(__i386__) || defined(__aarch64__)
+#if defined(__arm__) || defined(__i386__) || defined(__aarch64__) || defined(__riscv)
   // On supported architectures we cause a real SEGV.
   *go_away_compiler = 'a';
+#elif defined(__riscv)
+  // Cause a SEGV using an instruction known to be 4 bytes long to account for hardcoded jump
+  // in the signal handler
+  asm volatile("ld zero, (zero);" : : :);
 #elif defined(__x86_64__)
   // Cause a SEGV using an instruction known to be 2 bytes long to account for hardcoded jump
   // in the signal handler

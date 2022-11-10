@@ -70,9 +70,13 @@ ALWAYS_INLINE JValue ExecuteSwitchImpl(Thread* self,
     .interpret_one_instruction = interpret_one_instruction,
     .result = JValue(),
   };
+#ifdef __riscv
+  ExecuteSwitchImplCpp<transaction_active>(&ctx);
+#else
   void* impl = reinterpret_cast<void*>(&ExecuteSwitchImplCpp<transaction_active>);
   const uint16_t* dex_pc = ctx.accessor.Insns();
   ExecuteSwitchImplAsm(&ctx, impl, dex_pc);
+#endif
   return ctx.result;
 }
 

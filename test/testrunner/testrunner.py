@@ -91,7 +91,7 @@ from device_config import device_config
 #        +   gcstress extra: 20m
 #        -----------------------
 #                            47m
-timeout = 3600 # 60 minutes
+timeout = 3600 # 60 minutes # * 100 for varhandles
 
 if env.ART_TEST_RUN_ON_ARM_FVP:
   # Increase timeout to 600 minutes due to the emulation overhead on FVP.
@@ -354,8 +354,11 @@ def find_extra_device_arguments(target):
 
 def get_device_name():
   """
-  Gets the value of ro.product.name from remote device.
+  Gets the value of ro.product.name from remote device (unless running on a VM).
   """
+  if env.ART_TEST_VM:
+    return "unknown-linux-vm"
+
   proc = subprocess.Popen(['adb', 'shell', 'getprop', 'ro.product.name'],
                           stderr=subprocess.STDOUT,
                           stdout = subprocess.PIPE,
@@ -710,7 +713,7 @@ def run_test(command, test, test_variant, test_name):
     failed_tests.append((test_name, 'Timed out in %d seconds' % timeout))
 
     # HACK(b/142039427): Print extra backtraces on timeout.
-    if "-target-" in test_name:
+    if "-target-" in test_name and not env.ART_TEST_VM:
       for i in range(8):
         proc_name = "dalvikvm" + test_name[-2:]
         pidof = subprocess.run(["adb", "shell", "pidof", proc_name], stdout=subprocess.PIPE)
@@ -1070,6 +1073,8 @@ def parse_test_name(test_name):
 
 
 def get_target_cpu_count():
+  if env.ART_TEST_VM:
+    return 8 # maximum parallelism I was able to use in QEMU
   adb_command = 'adb shell cat /sys/devices/system/cpu/present'
   cpu_info_proc = subprocess.Popen(adb_command.split(), stdout=subprocess.PIPE)
   cpu_info = cpu_info_proc.stdout.read()

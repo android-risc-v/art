@@ -40,14 +40,18 @@ struct PACKED(2 * sizeof(IntType)) AtomicPair {
 template <typename IntType>
 ALWAYS_INLINE static inline AtomicPair<IntType> AtomicPairLoadAcquire(
     std::atomic<AtomicPair<IntType>>* target) {
+#ifndef __riscv
   static_assert(std::atomic<AtomicPair<IntType>>::is_always_lock_free);
+#endif
   return target->load(std::memory_order_acquire);
 }
 
 template <typename IntType>
 ALWAYS_INLINE static inline void AtomicPairStoreRelease(
     std::atomic<AtomicPair<IntType>>* target, AtomicPair<IntType> value) {
+#ifndef __riscv
   static_assert(std::atomic<AtomicPair<IntType>>::is_always_lock_free);
+#endif
   target->store(value, std::memory_order_release);
 }
 

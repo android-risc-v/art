@@ -16,6 +16,28 @@
 
 . "$(dirname $0)/buildbot-utils.sh"
 
+if [[ -n "$ART_TEST_VM" ]]; then
+  if [[ -z "$SSH_CMD" ]]; then
+    msgerror "SSH_CMD not set"
+    exit 1
+  elif [[ -z "$ART_TEST_CHROOT" ]]; then
+    msgerror "ART_TEST_CHROOT not set"
+    exit 1
+  fi
+
+  [[ -d "$ART_TEST_VM" ]] || { msgerror "no VM in $ART_TEST_VM"; exit 1; }
+  $SSH_CMD "true" || { msgerror "no VM (tried \"$SSH_CMD true\""; exit 1; }
+  $SSH_CMD "
+    sudo umount $ART_TEST_CHROOT/proc
+    sudo umount $ART_TEST_CHROOT/sys
+    sudo umount $ART_TEST_CHROOT/dev
+    sudo umount $ART_TEST_CHROOT/bin
+    sudo umount $ART_TEST_CHROOT/lib
+    rm -rf $ART_TEST_CHROOT
+  "
+  exit 0
+fi
+
 # Setup as root, as device cleanup requires it.
 adb root
 adb wait-for-device

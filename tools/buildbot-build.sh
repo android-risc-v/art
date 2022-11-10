@@ -206,22 +206,27 @@ if [[ $build_target == "yes" ]]; then
     if [[ $TARGET_ARCH = arm* ]]; then
       arch32=arm
       arch64=arm64
+    elif [[ $TARGET_ARCH = riscv* ]]; then
+      arch32=none
+      arch64=riscv64
     else
       arch32=x86
       arch64=x86_64
     fi
-    for so in ${implementation_libs[@]}; do
-      if [ -d "$ANDROID_PRODUCT_OUT/system/lib" ]; then
-        cmd="cp -p prebuilts/runtime/mainline/platform/impl/$arch32/$so $ANDROID_PRODUCT_OUT/system/lib/$so"
-        msginfo "Executing" "$cmd"
-        eval "$cmd"
-      fi
-      if [ -d "$ANDROID_PRODUCT_OUT/system/lib64" ]; then
-        cmd="cp -p prebuilts/runtime/mainline/platform/impl/$arch64/$so $ANDROID_PRODUCT_OUT/system/lib64/$so"
-        msginfo "Executing" "$cmd"
-        eval "$cmd"
-      fi
-   done
+    if [ $TARGET_ARCH != riscv64 ]; then
+      for so in ${implementation_libs[@]}; do
+        if [ -d "$ANDROID_PRODUCT_OUT/system/lib" ]; then
+          cmd="cp -p prebuilts/runtime/mainline/platform/impl/$arch32/$so $ANDROID_PRODUCT_OUT/system/lib/$so"
+          msginfo "Executing" "$cmd"
+          eval "$cmd"
+        fi
+        if [ -d "$ANDROID_PRODUCT_OUT/system/lib64" ]; then
+          cmd="cp -p prebuilts/runtime/mainline/platform/impl/$arch64/$so $ANDROID_PRODUCT_OUT/system/lib64/$so"
+          msginfo "Executing" "$cmd"
+          eval "$cmd"
+        fi
+      done
+    fi
   fi
 
   # Create canonical name -> file name symlink in the symbol directory for the

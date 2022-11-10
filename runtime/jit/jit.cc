@@ -450,6 +450,14 @@ extern "C" void art_quick_osr_stub(void** stack,
                                    JValue* result,
                                    const char* shorty,
                                    Thread* self);
+#ifdef __riscv
+extern "C" void art_quick_osr_stub(void**,
+                                   size_t,
+                                   const uint8_t*,
+                                   JValue*,
+                                   const char*,
+                                   Thread*) {}
+#endif
 
 OsrData* Jit::PrepareForOsr(ArtMethod* method, uint32_t dex_pc, uint32_t* vregs) {
   if (!kEnableOnStackReplacement) {

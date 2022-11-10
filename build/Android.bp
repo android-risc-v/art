@@ -237,6 +237,9 @@ art_module_art_global_defaults {
         arm64: {
             cflags: ["-DART_ENABLE_CODEGEN_arm64"],
         },
+        riscv64: {
+            cflags: ["-DART_ENABLE_CODEGEN_riscv64"],
+        },
         x86: {
             cflags: ["-DART_ENABLE_CODEGEN_x86"],
         },
@@ -272,6 +275,9 @@ cc_defaults {
     name: "art_hugepage_defaults",
     arch: {
         arm64: {
+            ldflags: ["-z max-page-size=0x200000"],
+        },
+        riscv64: {
             ldflags: ["-z max-page-size=0x200000"],
         },
         x86_64: {

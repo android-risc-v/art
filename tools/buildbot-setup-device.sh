@@ -25,6 +25,47 @@ else
   verbose=false
 fi
 
+if [[ -n "$ART_TEST_VM" ]]; then
+  if [[ -z "$SSH_CMD" ]]; then
+    msgerror "SSH_CMD not set"
+    exit 1
+  elif [[ -z "$CHROOT_CMD" ]]; then
+    msgerror "CHROOT_CMD not set"
+    exit 1
+  elif [[ -z "$ART_TEST_CHROOT" ]]; then
+    msgerror "ART_TEST_CHROOT not set"
+    exit 1
+  fi
+
+  [[ -d "$ART_TEST_VM" ]] || { msgerror "no VM in $ART_TEST_VM"; exit 1; }
+  $SSH_CMD "true" || { msgerror "no VM (tried \"$SSH_CMD true\""; exit 1; }
+  $SSH_CMD "
+    mkdir $ART_TEST_CHROOT
+
+    mkdir $ART_TEST_CHROOT/apex
+    mkdir $ART_TEST_CHROOT/bin
+    mkdir $ART_TEST_CHROOT/data
+    mkdir $ART_TEST_CHROOT/data/local
+    mkdir $ART_TEST_CHROOT/data/local/tmp
+    mkdir $ART_TEST_CHROOT/dev
+    mkdir $ART_TEST_CHROOT/etc
+    mkdir $ART_TEST_CHROOT/lib
+    mkdir $ART_TEST_CHROOT/linkerconfig
+    mkdir $ART_TEST_CHROOT/proc
+    mkdir $ART_TEST_CHROOT/sys
+    mkdir $ART_TEST_CHROOT/system
+    mkdir $ART_TEST_CHROOT/tmp
+
+    sudo mount -t proc /proc art-test-chroot/proc
+    sudo mount -t sysfs /sys art-test-chroot/sys
+    sudo mount --bind /dev art-test-chroot/dev
+    sudo mount --bind /bin art-test-chroot/bin
+    sudo mount --bind /lib art-test-chroot/lib
+    $CHROOT_CMD echo \"Hello from chroot!\"
+  "
+  exit 0
+fi
+
 # Setup as root, as some actions performed here require it.
 adb version
 adb root

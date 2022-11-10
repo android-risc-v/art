@@ -26,6 +26,7 @@
 #include "common_compiler_test.h"
 #include "graph_checker.h"
 #include "prepare_for_register_allocation.h"
+#include "register_allocator.h"
 #include "ssa_liveness_analysis.h"
 
 #ifdef ART_ENABLE_CODEGEN_arm
@@ -34,6 +35,10 @@
 
 #ifdef ART_ENABLE_CODEGEN_arm64
 #include "code_generator_arm64.h"
+#endif
+
+#ifdef ART_ENABLE_CODEGEN_riscv64
+#include "code_generator_riscv64.h"
 #endif
 
 #ifdef ART_ENABLE_CODEGEN_x86
@@ -326,6 +331,12 @@ inline CodeGenerator* create_codegen_arm_vixl32(HGraph* graph, const CompilerOpt
 #ifdef ART_ENABLE_CODEGEN_arm64
 inline CodeGenerator* create_codegen_arm64(HGraph* graph, const CompilerOptions& compiler_options) {
   return new (graph->GetAllocator()) TestCodeGeneratorARM64(graph, compiler_options);
+}
+#endif
+
+#ifdef ART_ENABLE_CODEGEN_riscv64
+inline CodeGenerator* create_codegen_riscv64(HGraph*, const CompilerOptions&) {
+  return nullptr;
 }
 #endif
 

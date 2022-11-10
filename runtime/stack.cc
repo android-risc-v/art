@@ -920,7 +920,7 @@ void StackVisitor::WalkStack(bool include_transitions) {
         uint8_t* next_frame = reinterpret_cast<uint8_t*>(cur_quick_frame_) + frame_size;
         cur_quick_frame_ = reinterpret_cast<ArtMethod**>(next_frame);
 
-        if (kDebugStackWalk) {
+       if (kDebugStackWalk) {
           LOG(INFO) << "Tid=" << thread_-> GetThreadId() << ", method: "
               << ArtMethod::PrettyMethod(method) << "@" << method << " size=" << frame_size
               << std::boolalpha

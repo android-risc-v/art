@@ -244,8 +244,10 @@ class SignalChain {
 #define SA_RESTORER 0x04000000
 #endif
     kernel_supported_flags_ = SA_NOCLDSTOP | SA_NOCLDWAIT | SA_SIGINFO |
-                              SA_ONSTACK | SA_RESTART | SA_NODEFER |
-                              SA_RESETHAND | SA_RESTORER;
+                              SA_ONSTACK | SA_RESTART | SA_NODEFER | SA_RESETHAND;
+#if defined(SA_RESTORER)
+    kernel_supported_flags_ |= SA_RESTORER;
+#endif
 
     // Determine whether the kernel supports SA_EXPOSE_TAGBITS. For newer
     // kernels we use the flag support detection protocol described above. In

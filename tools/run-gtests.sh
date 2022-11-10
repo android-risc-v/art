@@ -61,20 +61,34 @@ options="$@"
 
 if [[ ${#tests[@]} -eq 0 ]]; then
   # Search for executables under the `bin/art` directory of the ART APEX.
-  readarray -t tests <<<$("$adb" shell chroot "$ART_TEST_CHROOT" \
-    find "$android_art_root/bin/art" -type f -perm /ugo+x | sort)
+  if [ -n $ART_TEST_ON_VM ]; then
+    readarray -t tests <<<$($SSH_CMD $CHROOT_CMD \
+      find "$android_art_root/bin/art" -type f -perm /ugo+x | sort)
+  else
+    readarray -t tests <<<$("$adb" shell chroot "$ART_TEST_CHROOT" \
+      find "$android_art_root/bin/art" -type f -perm /ugo+x | sort)
+  fi
 fi
 
 failing_tests=()
 
 for t in ${tests[@]}; do
   echo "$t"
-  "$adb" shell chroot "$ART_TEST_CHROOT" \
-    env ANDROID_ART_ROOT="$android_art_root" \
-        ANDROID_I18N_ROOT="$android_i18n_root" \
-        ANDROID_TZDATA_ROOT="$android_tzdata_root" \
-        $t $options \
-    || failing_tests+=("$t")
+  if [ -n $ART_TEST_ON_VM ]; then
+    $SSH_CMD $CHROOT_CMD \
+      env ANDROID_ART_ROOT="$android_art_root" \
+          ANDROID_I18N_ROOT="$android_i18n_root" \
+          ANDROID_TZDATA_ROOT="$android_tzdata_root" \
+          $t $options \
+      || failing_tests+=("$t")
+  else
+    "$adb" shell chroot "$ART_TEST_CHROOT" \
+      env ANDROID_ART_ROOT="$android_art_root" \
+          ANDROID_I18N_ROOT="$android_i18n_root" \
+          ANDROID_TZDATA_ROOT="$android_tzdata_root" \
+          $t $options \
+      || failing_tests+=("$t")
+  fi
 done
 
 if [[ -n "$failing_tests" ]]; then

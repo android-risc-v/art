@@ -1773,6 +1773,9 @@ bool Runtime::Init(RuntimeArgumentMap&& runtime_options_in) {
       // Historical note: Installing stack protection was not playing well with Valgrind.
       implicit_so_checks_ = true;
       break;
+    case InstructionSet::kRiscv64:
+      implicit_suspend_checks_ = false;
+      break;
     default:
       // Keep the defaults.
       break;
@@ -2720,6 +2723,7 @@ void Runtime::SetInstructionSet(InstructionSet instruction_set) {
       break;
     case InstructionSet::kArm:
     case InstructionSet::kArm64:
+    case InstructionSet::kRiscv64:
     case InstructionSet::kX86:
     case InstructionSet::kX86_64:
       break;

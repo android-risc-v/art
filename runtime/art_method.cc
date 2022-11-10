@@ -420,10 +420,13 @@ void ArtMethod::Invoke(Thread* self, uint32_t* args, uint32_t args_size, JValue*
       }
 
       if (!IsStatic()) {
+//LOG(WARNING) << "invoke 1 " << PrettyMethod();
         (*art_quick_invoke_stub)(this, args, args_size, self, result, shorty);
       } else {
+//LOG(WARNING) << "invoke 2 " << PrettyMethod();
         (*art_quick_invoke_static_stub)(this, args, args_size, self, result, shorty);
       }
+//LOG(WARNING) << "invoke < " << PrettyMethod();
       if (UNLIKELY(self->GetException() == Thread::GetDeoptimizationException())) {
         // Unusual case where we were running generated code and an
         // exception was thrown to force the activations to be removed from the
