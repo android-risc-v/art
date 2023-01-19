@@ -352,6 +352,7 @@ class InstructionHandler {
   }
 
   template<InvokeType type, bool is_range>
+  NO_STACK_PROTECTOR
   HANDLER_ATTRIBUTES bool HandleInvoke() {
     bool success = DoInvoke<type, is_range>(
         Self(), shadow_frame_, inst_, inst_data_, ResultRegister());
